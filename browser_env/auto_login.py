@@ -2,6 +2,7 @@
 import glob
 from itertools import combinations
 from pathlib import Path
+import os
 
 from beartype import beartype
 from playwright.sync_api import sync_playwright
@@ -116,8 +117,12 @@ def main() -> None:
         renew_comb([site])
 
     for c_file in glob.glob("./.auth/*.json"):
-        comb = c_file.split("/")[-1].rsplit("_", 1)[0].split(".")
+        filename = os.path.basename(c_file)
+        comb = filename.rsplit("_", 1)[0].split(".")
         for cur_site in comb:
+            if cur_site not in sites:
+                print(f"Warning: {cur_site} not found in sites list! Skipping.")
+                continue
             url = urls[sites.index(cur_site)]
             keyword = keywords[sites.index(cur_site)]
             match = exact_match[sites.index(cur_site)]

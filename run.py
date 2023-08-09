@@ -248,7 +248,7 @@ class RenderHelper(object):
     def __init__(
         self, config_file: str, result_dir: str, action_set_tag: str
     ) -> None:
-        with open(config_file, "r") as f:
+        with open(config_file, "r",encoding='utf-8') as f:
             _config = json.load(f)
             _config_str = ""
             for k, v in _config.items():
@@ -259,7 +259,7 @@ class RenderHelper(object):
         self.action_set_tag = action_set_tag
 
         self.render_file = open(
-            Path(result_dir) / f"render_{task_id}.html", "a+"
+            Path(result_dir) / f"render_{task_id}.html", "a+", encoding='utf-8'
         )
         self.render_file.truncate(0)
         # write init template
@@ -509,7 +509,11 @@ def test(
         render_helper.close()
 
     env.close()
-    logger.info(f"Average score: {sum(scores) / len(scores)}")
+    if scores:
+        logger.info(f"Average score: {sum(scores) / len(scores)}")
+    else:
+        logger.info("No tasks were scored. Average score is undefined.")
+
 
 
 def construct_llm_config(args: argparse.Namespace) -> lm_config.LMConfig:
@@ -579,15 +583,21 @@ def prepare(args: argparse.Namespace) -> None:
 
 
 def get_unfinished(config_files: list[str], result_dir: str) -> list[str]:
-    result_files = glob.glob(f"{result_dir}/*.html")
+    result_files = glob.glob(os.path.join(result_dir, "*.html"))
+    print(f"Result files found: {result_files}")
     task_ids = [
         os.path.basename(f).split(".")[0].split("_")[1] for f in result_files
     ]
+    print(f"Task IDs from result files: {task_ids}") 
     unfinished_configs = []
     for config_file in config_files:
         task_id = os.path.basename(config_file).split(".")[0]
+        print(f"Checking config file {config_file} with task_id {task_id}")
         if task_id not in task_ids:
+            print(f"Adding unfinished config file: {config_file}") 
             unfinished_configs.append(config_file)
+    
+    print(f"Final list of unfinished config files: {unfinished_configs}") 
     return unfinished_configs
 
 
@@ -609,8 +619,13 @@ if __name__ == "__main__":
     st_idx = args.test_start_idx
     ed_idx = args.test_end_idx
     for i in range(st_idx, ed_idx):
-        test_file_list.append(f"config_files/{i}.json")
+        test_file_path = os.path.join("config_files", f"{i}.json")
+        test_file_list.append(test_file_path)
+    print(f"Testing file list:", test_file_list)
     test_file_list = get_unfinished(test_file_list, args.result_dir)
+    if len(test_file_list) == 0:
+        print("No tasks were found. Exiting.")
+        exit()
     print(f"Total {len(test_file_list)} tasks left")
     args.render = True
     args.render_screenshot = True
