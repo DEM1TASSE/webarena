@@ -499,7 +499,7 @@ class TextObervationProcessor(ObservationProcessor):
         for line in tree_str.split("\n"):
             if "statictext" in line.lower():
                 prev_lines = clean_lines[-3:]
-                pattern = r"\[\d+\] StaticText '([^']+)'"
+                pattern = r"\[\d+\] StaticText ['\"]([^'\"]+)['\"]"
 
                 match = re.search(pattern, line)
                 if match:
@@ -557,6 +557,7 @@ class TextObervationProcessor(ObservationProcessor):
                 accessibility_tree = self.current_viewport_accessibility_tree(
                     browser_info, accessibility_tree
                 )
+            # print(accessibility_tree)
             content, obs_nodes_info = self.parse_accessibility_tree(
                 accessibility_tree
             )
