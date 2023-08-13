@@ -127,8 +127,8 @@ time.sleep(SLEEP)
 state_info = {"observation": obs, "info": info}
 trajectory.append(state_info)
 
-# action 3 click review link
-match = re.search(r"\[(\d+)\] tab 'Reviews \(3\)'", actree_obs)
+# action 3 click review tab
+match = re.search(r"\[(\d+)\] link 'Reviews \(3\)'", actree_obs)
 action = create_id_based_action(f"click [{match.group(1)}]")
 trajectory.append(action)
 print("action 3", action)
@@ -143,12 +143,11 @@ time.sleep(SLEEP)
 state_info = {"observation": obs, "info": info}
 trajectory.append(state_info)
 
-# action 4 click tab
-# change tabpanel to see the content of reviews
+# action 4 click review tabpanel
 match = re.search(r"\[(\d+)\] tabpanel 'Reviews \(3\)'", actree_obs)
 action = create_id_based_action(f"click [{match.group(1)}]")
 trajectory.append(action)
-print("action 3", action)
+print("action 4", action)
 
 # observation 5
 obs, _, terminated, _, info = env.step(action)
@@ -160,14 +159,16 @@ time.sleep(SLEEP)
 state_info = {"observation": obs, "info": info}
 trajectory.append(state_info)
 
-trajectory.append(create_stop_action("DryUneven color"))
+# action 5 stop action for result
+action = create_stop_action("DryUneven color")
+trajectory.append(action)
 
-evaluator = evaluator_router(config_file)
-score = evaluator(
-    trajectory=trajectory,
-    config_file=config_file,
-    page=env.page,
-    client=env.get_page_client(env.page),
-)
+# evaluator = evaluator_router(config_file)
+# score = evaluator(
+#     trajectory=trajectory,
+#     config_file=config_file,
+#     page=env.page,
+#     client=env.get_page_client(env.page),
+# )
 
-print("score:", score)
+# print("score:", score)
