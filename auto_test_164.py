@@ -60,7 +60,7 @@ trajectory: Trajectory = []
 obs, info = env.reset(options={"config_file": config_file})
 actree_obs = obs["text"]
 
-openai.api_key = "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"
+openai.api_key = "OPENAI_API_KEY"
 
 observation = ""
 previous_action = []
